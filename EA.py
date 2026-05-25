@@ -18,7 +18,6 @@ class EvolutionaryAlgorithm:
         self.sigma = sigma                           # Mutation strength (standard deviation)
         self.tournament_size = tournament_size       # Number of individuals in a single tournament
         
-        # Initialize the initial population (uniform distribution)
         self.population = np.random.uniform(self.bounds[0], self.bounds[1], 
                                            (self.population_size, self.dimensions))
         self.fitness_scores = np.zeros(self.population_size)
@@ -28,7 +27,6 @@ class EvolutionaryAlgorithm:
         return np.array([self.objective_function(individual) for individual in population])
 
     def _tournament_selection(self):
-        """Selects one individual based on a tournament."""
         indices = np.random.choice(self.population_size, self.tournament_size, replace=False)
         best_index = indices[np.argmin(self.fitness_scores[indices])]
         return self.population[best_index]
@@ -36,7 +34,7 @@ class EvolutionaryAlgorithm:
     def _averaging_crossover(self, parent1, parent2):
         """Averaging crossover (using a weighted average)."""
         if np.random.rand() < self.crossover_rate:
-            weight = np.random.rand() # Random weight in the range [0, 1]
+            weight = np.random.rand()
             child1 = weight * parent1 + (1 - weight) * parent2
             child2 = (1 - weight) * parent1 + weight * parent2
             return child1, child2
@@ -52,7 +50,6 @@ class EvolutionaryAlgorithm:
         return np.clip(child, self.bounds[0], self.bounds[1])
 
     def run(self):
-        """Main evolutionary loop."""
         self.fitness_scores = self._evaluate(self.population)
         
         best_history = []
@@ -60,7 +57,6 @@ class EvolutionaryAlgorithm:
         for gen in range(self.generations):
             new_population = []
             
-            # keep the best individual
             best_index = np.argmin(self.fitness_scores)
             best_individual = self.population[best_index]
             best_score = self.fitness_scores[best_index]
