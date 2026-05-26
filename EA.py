@@ -39,6 +39,15 @@ class EvolutionaryAlgorithm:
             child2 = (1 - weight) * parent1 + weight * parent2
             return child1, child2
         return parent1.copy(), parent2.copy()
+    
+    def _single_point_crossover(self, parent1, parent2):
+        """Single-point crossover."""
+        if np.random.rand() < self.crossover_rate:
+            point = np.random.randint(1, self.dimensions - 1)
+            child1 = np.concatenate((parent1[:point], parent2[point:]))
+            child2 = np.concatenate((parent2[:point], parent1[point:]))
+            return child1, child2
+        return parent1.copy(), parent2.copy()
 
     def _gaussian_mutation(self, child):
         """Adds a disturbance from a normal distribution to the individual's genes."""
@@ -68,7 +77,7 @@ class EvolutionaryAlgorithm:
                 parent1 = self._tournament_selection()
                 parent2 = self._tournament_selection()
         
-                child1, child2 = self._averaging_crossover(parent1, parent2)
+                child1, child2 = self._single_point_crossover(parent1, parent2)
                 
                 child1 = self._gaussian_mutation(child1)
                 new_population.append(child1)
