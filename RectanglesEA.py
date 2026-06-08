@@ -7,7 +7,7 @@ import matplotlib.patheffects as path_effects
 from typing import Sequence
 
 class RectangleDef:
-    """Klasa przechowująca definicję dostępnego prostokąta."""
+    """Definition of rectangle"""
     def __init__(self, id, w, h, v):
         self.id = id
         self.w = w
@@ -15,14 +15,14 @@ class RectangleDef:
         self.v = v
 
 class PlacedRectangle:
-    """Klasa reprezentująca prostokąt wstawiony na planszę."""
+    """Representation of fitted rectangle"""
     def __init__(self, rect_def, x, y):
         self.rect = rect_def
         self.x = x
         self.y = y
 
     def intersects(self, other):
-        """Sprawdza, czy wnętrza dwóch prostokątów nachodzą na siebie."""
+        """Checks if two rectangles are intersecting one another"""
         return not (self.x + self.rect.w <= other.x or 
                     other.x + other.rect.w <= self.x or 
                     self.y + self.rect.h <= other.y or 
@@ -53,10 +53,11 @@ class CuttingStockEA:
         dim_list = np.array(dim_list).flatten()
 
         self.step = nwd_lista(dim_list)
+        # nwd to choose as long step as possible to optimise runtime
+        # but still short enought to perfectly fit rectangles
 
         self.population_size = population_size
-        
-        # Oszacowanie maksymalnej długości chromosomu (pole koła / pole najmniejszego prostokąta)
+        # Estimating max chromosom length (circle area / area of smallest rectangle)
         min_area = min(r.w * r.h for r in rect_types)
         circle_area = math.pi * (self.r ** 2)
         self.chrom_length = int(circle_area / min_area)
@@ -169,6 +170,7 @@ class CuttingStockEA:
         return best_index
 
     def _weighted_crossover(self, parent1, parent2, fitness1, fitness2):
+        """Better parent has higher probability of getting choosen."""
         suma_ocen = fitness1 + fitness2
         p_A = fitness1 / suma_ocen if suma_ocen > 0 else 0.5
         
@@ -180,6 +182,7 @@ class CuttingStockEA:
         return child_np.tolist()
 
     def _weighted_crossover_varying_probability(self, parent1, parent2, fitness1, fitness2):
+        """Rectangles at the back are more likely to be changed."""
         suma_ocen = fitness1 + fitness2
         p_A = fitness1 / suma_ocen if suma_ocen > 0 else 0.5
         
@@ -231,7 +234,7 @@ class CuttingStockEA:
                 new_population.append(list(self.population[idx].copy()))
             
             while len(new_population) < self.population_size:
-                p1_id = self._tournament_selection(t_size=top_tournament_size)
+                p1_id = self._tournament_selection(t_size=top_tournament_size) # one parent is usually very good
                 p2_id = self._tournament_selection()
 
                 f1 = self.fitness_scores[p1_id]
